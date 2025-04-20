@@ -1408,7 +1408,7 @@ export class UserService {
           // this will return the users list according to the start and end index
 
           public paginatedUsers = computed(()=>{
-            const startIndex = this.currentPageSizeSignal()-1 + this.pageSizeSignal();
+            const startIndex = (this.currentPageSizeSignal() - 1) * this.pageSizeSignal();
             const endIndex = startIndex + this.pageSizeSignal();
             return this.userSignal().slice(startIndex,endIndex);
           })

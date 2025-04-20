@@ -9,47 +9,44 @@ import Notiflix from 'notiflix';
   selector: 'app-user-list',
   imports: [ViewUserDetailsComponent],
   templateUrl: './user-list.component.html',
-  styleUrl: './user-list.component.css'
+  styleUrl: './user-list.component.css',
 })
 export class UserListComponent {
-
-  private userService = inject(UserService)
-  private router = inject(Router)
+  private userService = inject(UserService);
+  private router = inject(Router);
 
   // signals for component state
   userList = signal<User[]>([]);
   editingUser = signal<User | null>(null);
-  editedUser = signal<User |null >(null);
-  headers =signal<string[]>([]); // to add the headers dynamically
+  editedUser = signal<User | null>(null);
+  headers = signal<string[]>([]); // to add the headers dynamically
 
-  selectedUser = signal<User | null>(null);  // for showing the details of selected user in the modal
+  selectedUser = signal<User | null>(null); // for showing the details of selected user in the modal
 
-  users = computed(()=>this.userService.paginatedUsers());
-  currentPage = computed(()=>this.userService.Currentpage);// call the getter for getting the current page
-  totalPages =computed(()=>this.userService.totalPages());
-  pageSize = computed(()=>this.userService.PageSize) // call the getter
+  users = computed(() => this.userService.paginatedUsers());
+  currentPage = computed(() => this.userService.Currentpage); // call the getter for getting the current page
+  totalPages = computed(() => this.userService.totalPages());
+  pageSize = computed(() => this.userService.PageSize); // call the getter
   tableColumns = signal<string[]>(['id', 'name']);
 
+  // Available page sizes
+  pageSizeOptions = [5, 10, 20, 50];
 
- // Available page sizes
- pageSizeOptions = [5, 10, 20, 50];
-
- constructor(){
-  this.userList.set(this.userService.UsersList)
-  if(this.userService.UsersList.length > 0){
-    this.headers.set(Object.keys(this.userService.UsersList[0]));  // set the headers dynamically based on the structure of first user
-  }
-
-  effect(()=>{
-    const currentUser = this.users();
-    if(currentUser.length> 0 && this.headers().length === 0){
-      this.headers.set(Object.keys(currentUser[0]))
-      console.log(this.headers())
+  constructor() {
+    this.userList.set(this.userService.UsersList);
+    if (this.userService.UsersList.length > 0) {
+      this.headers.set(Object.keys(this.userService.UsersList[0])); // set the headers dynamically based on the structure of first user
     }
-    this.userList.set(this.userService.UsersList)
-  })
 
-  
+    effect(() => {
+      const currentUser = this.users();
+      if (currentUser.length > 0 && this.headers().length === 0) {
+        this.headers.set(Object.keys(currentUser[0]));
+        console.log(this.headers());
+      }
+      this.userList.set(this.userService.UsersList);
+    });
+
     // Initialize Notiflix with custom settings
     Notiflix.Confirm.init({
       titleColor: '#1775ee',
@@ -84,87 +81,82 @@ export class UserListComponent {
       info: {
         background: '#26c0d3',
         textColor: '#fff',
-      }
+      },
     });
- }
+  }
 
- showUserDetails(user:User){
-if(this.editingUser() != user){
-  this.selectedUser.set(user)
-}
- }
+  showUserDetails(user: User) {
+    if (this.editingUser() != user) {
+      this.selectedUser.set(user);
+    }
+  }
 
- closeUseModal(){
-  this.selectedUser.set(null);
- }
+  closeUseModal() {
+    this.selectedUser.set(null);
+  }
 
- startEditing(user:User){
-  this.editingUser.set(user)
-  this.editedUser.set({...user})
+  startEditing(user: User) {
+    this.editingUser.set(user);
+    this.editedUser.set({ ...user });
+  }
 
- }
-
- // Show confirmation dialog with Notiflix
- saveEditedUser(){
-  const userToSave = this.editedUser();
+  // Show confirmation dialog with Notiflix
+  saveEditedUser() {
+    const userToSave = this.editedUser();
     if (userToSave) {
-     
       Notiflix.Confirm.show(
         'Save Changes',
         'Are you sure you want to save these changes?',
         'Save',
         'Cancel',
         () => {
-        
           this.userService.updateUser(userToSave);
           this.editedUser.set(null);
           this.editingUser.set(null);
           Notiflix.Notify.success('User updated successfully!');
         },
         () => {
-         Notiflix.Notify.info('Edit canceled');
+          Notiflix.Notify.info('Edit canceled');
         }
       );
     }
- }
+  }
 
   // Show confirmation dialog with Notiflix
- cancelEditing(): void {
-  Notiflix.Confirm.show(
-    'Cancel Editing',
-    'Are you sure you want to cancel? Your changes will be lost.',
-    'Cancel',
-    'Continue Editing',
-    () => {
-     
-      this.editingUser.set(null);
-      this.editedUser.set(null);
-      Notiflix.Notify.info('Editing canceled');
-    },
-    () => {
-      
-    }
-  );
-}
-
- updateEditedUser(property:string,value:any){
- const currentUser = this.editedUser();
-  if(currentUser){
-    this.editedUser.update(user=>({
-      ...user!,[property]:property==='version' ?parseFloat(value):value
-    }))
+  cancelEditing(): void {
+    Notiflix.Confirm.show(
+      'Cancel Editing',
+      'Are you sure you want to cancel? Your changes will be lost.',
+      'Cancel',
+      'Continue Editing',
+      () => {
+        this.editingUser.set(null);
+        this.editedUser.set(null);
+        Notiflix.Notify.info('Editing canceled');
+      },
+      () => {}
+    );
   }
- }
 
-   // Pagination methods
-   nextPage(): void {
+  updateEditedUser(property: string, value: any) {
+    const currentUser = this.editedUser();
+    if (currentUser) {
+      this.editedUser.update((user) => ({
+        ...user!,
+        [property]: property === 'version' ? parseFloat(value) : value,
+      }));
+    }
+  }
+
+  // Pagination methods
+  nextPage(): void {
     this.userService.nextPage();
   }
-  
+
   previousPage(): void {
     this.userService.previousPage();
   }
-  
+
   goToPage(page: number): void {
     this.userService.setCurrentPages(page);
   }
@@ -173,26 +165,25 @@ if(this.editingUser() != user){
     this.userService.setPageSize(Number(select.value));
   }
 
-    // Generate page numbers for pagination
-    getPageNumbers(): number[] {
-      const total = this.totalPages();
-      const current = this.currentPage();
-      
-      if (total <= 5) {
-        return Array.from({length: total}, (_, i) => i + 1);
-      }
-      
-      if (current <= 3) {
-        return [1, 2, 3, 4, 5];
-      }
-      
-      if (current >= total - 2) {
-        return [total - 4, total - 3, total - 2, total - 1, total];
-      }
-      
-      return [current - 2, current - 1, current, current + 1, current + 2];
+  // Generate page numbers for pagination
+  getPageNumbers(): number[] {
+    const total = this.totalPages();
+    const current = this.currentPage();
+
+    if (total <= 5) {
+      return Array.from({ length: total }, (_, i) => i + 1);
     }
-      
+
+    if (current <= 3) {
+      return [1, 2, 3, 4, 5];
+    }
+
+    if (current >= total - 2) {
+      return [total - 4, total - 3, total - 2, total - 1, total];
+    }
+
+    return [current - 2, current - 1, current, current + 1, current + 2];
+  }
 
   handleInputChange(event: Event, property: string): void {
     const target = event.target as HTMLInputElement | HTMLTextAreaElement;
@@ -202,20 +193,20 @@ if(this.editingUser() != user){
 
   visibleHeaders = computed(() => {
     const allHeaders = this.headers();
-    const orderedHeaders = ['id', 'name'];  // Always ensure id and name come first in this specific order
-     if (this.editingUser()) {
-      
+    const orderedHeaders = ['id', 'name']; // Always ensure id and name come first in this specific order
+    if (this.editingUser()) {
       return [
         ...orderedHeaders,
-        ...allHeaders.filter(header => !orderedHeaders.includes(header))
+        ...allHeaders.filter((header) => !orderedHeaders.includes(header)),
       ];
     }
-    
-    return orderedHeaders.filter(header => allHeaders.includes(header));// For display mode, only show id and name in the specified order
+
+    return orderedHeaders.filter((header) => allHeaders.includes(header)); // For display mode, only show id and name in the specified order
   });
 
-  getPropertyValue(user: User, propertyName: string): any { // Add cases for all other possible properties in your User model
-    switch(propertyName) {
+  getPropertyValue(user: User, propertyName: string): any {
+    // Add cases for all other possible properties in your User model
+    switch (propertyName) {
       case 'id':
         return user.id;
       case 'name':
@@ -226,13 +217,40 @@ if(this.editingUser() != user){
         return user.language;
       case 'version':
         return user.version;
-     
+
       default:
-        return '';  
+        return '';
     }
   }
-  
+
   closeUserModal(): void {
     this.selectedUser.set(null);
   }
+
+  deleteUser(id: string): void {
+    Notiflix.Confirm.show(
+      'Delete User',
+      'Are you sure you want to delete this user?',
+      'Delete',
+      'Cancel',
+      () => {
+        this.userService.deleteUser(id);
+        Notiflix.Notify.success('User deleted successfully!');
+      },
+      () => {
+        Notiflix.Notify.info('Deletion canceled');
+      }
+    );
+  }
+
+  searchTerm = signal<string>('');
+
+filteredUsers = computed(() => {
+  const term = this.searchTerm().toLowerCase();
+  return this.userService.paginatedUsers().filter(user =>
+    user.name.toLowerCase().includes(term) ||
+    user.language.toLowerCase().includes(term) ||
+    user.bio.toLowerCase().includes(term)
+  );
+});
 }

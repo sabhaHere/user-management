@@ -48,4 +48,6 @@ export class ViewUserDetailsComponent {
     }
     this.closeModal.emit();
   }
+
+  
 }

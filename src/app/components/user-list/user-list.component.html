@@ -78,6 +78,7 @@
               <td class="actions">
                 <button (click)="startEditing(user); $event.stopPropagation()">Edit</button>
                 <button (click)="showUserDetails(user); $event.stopPropagation()" class="view-button">View</button>
+                <button (click)="deleteUser(user.id); $event.stopPropagation()" class="delete-button">Delete</button>
               </td>
             }
           </tr>
@@ -114,8 +115,10 @@
     </div>
     
     <!-- Include the user modal -->
-    <app-view-user-details 
-      [user]="selectedUser()" 
-      (closeModal)="closeUserModal()"
-    ></app-view-user-details>
+    @defer (when selectedUser() !== null) {  
+      <app-view-user-details 
+        [user]="selectedUser()" 
+        (closeModal)="closeUserModal()"
+      ></app-view-user-details>
+    }
   </div>
