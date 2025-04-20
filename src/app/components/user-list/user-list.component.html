@@ -1,0 +1,121 @@
+<div class="user-list-container">
+    <h1>User Management</h1>
+    
+    <div class="pagination-controls">
+      <div class="pagination-info">
+        Showing page {{ currentPage() }} of {{ totalPages() }}
+      </div>
+      <div class="page-size-selector">
+        <label for="page-size">Items per page:</label>
+        <select id="page-size" (change)="changePageSize($event)">
+          @for (size of pageSizeOptions; track size) {
+            <option [value]="size" [selected]="pageSize() === size">{{ size }}</option>
+          }
+        </select>
+      </div>
+    </div>
+    
+    <table class="user-table">
+      <thead>
+        <tr>
+          @for (header of visibleHeaders(); track header) {
+            <th>{{ header }}</th>
+          }
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (user of users(); track user.id) {
+          <tr (click)="showUserDetails(user)"
+              [class.editing]="editingUser() === user">
+            
+            @if (editingUser() === user) {
+              <!-- When editing, show inputs for each field -->
+              @for (header of visibleHeaders(); track header) {
+                <td>
+                  @switch (header) {
+                    @case ('id') {
+                      {{ user.id }} <!-- ID is typically not editable -->
+                    }
+                    @case ('name') {
+                      <input type="text" [value]="editedUser() ? getPropertyValue(editedUser()!, header) : ''" 
+                        (input)="handleInputChange($event, header)">
+                    }
+                    @case ('language') {
+                      <input type="text" [value]="editedUser() ? getPropertyValue(editedUser()!, header) : ''" 
+                        (input)="handleInputChange($event, header)">
+                    }
+                    @case ('version') {
+                      <input type="number" [value]="editedUser() ? getPropertyValue(editedUser()!, header) : ''" 
+                        (input)="handleInputChange($event, header)" step="0.01">
+                    }
+                    @case ('bio') {
+                      <textarea [value]="editedUser() ? getPropertyValue(editedUser()!, header) : ''" 
+                        (input)="handleInputChange($event, header)"></textarea>
+                    }
+                    @default {
+                      <input type="text" [value]="editedUser() ? getPropertyValue(editedUser()!, header) : ''" 
+                        (input)="handleInputChange($event, header)">
+                    }
+                  }
+                </td>
+              }
+              <td class="actions">
+                <button (click)="saveEditedUser(); $event.stopPropagation()">Save</button>
+                <button (click)="cancelEditing(); $event.stopPropagation()">Cancel</button>
+              </td>
+            } @else {
+              <!-- When not editing, show data for visible columns -->
+              @for (header of visibleHeaders(); track header) {
+                <td>
+                  @if (header === 'bio') {
+                    {{ getPropertyValue(user, header)?.substring(0, 50) }}...
+                  } @else {
+                    {{ getPropertyValue(user, header) }}
+                  }
+                </td>
+              }
+              <td class="actions">
+                <button (click)="startEditing(user); $event.stopPropagation()">Edit</button>
+                <button (click)="showUserDetails(user); $event.stopPropagation()" class="view-button">View</button>
+              </td>
+            }
+          </tr>
+        } @empty {
+          <tr>
+            <td [attr.colspan]="visibleHeaders().length + 1" class="empty-message">
+              No users found
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  
+    <div class="pagination">
+      <button 
+        (click)="previousPage()" 
+        [disabled]="currentPage() === 1"
+        class="pagination-button"
+      >Previous</button>
+      
+      @for (page of getPageNumbers(); track page) {
+        <button 
+          (click)="goToPage(page)" 
+          [class.active]="currentPage() === page"
+          class="pagination-button page-number"
+        >{{ page }}</button>
+      }
+      
+      <button 
+        (click)="nextPage()" 
+        [disabled]="currentPage() === totalPages()"
+        class="pagination-button"
+      >Next</button>
+    </div>
+    
+    <!-- Include the user modal -->
+    <app-view-user-details 
+      [user]="selectedUser()" 
+      (closeModal)="closeUserModal()"
+    ></app-view-user-details>
+  </div>
