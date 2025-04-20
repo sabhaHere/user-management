@@ -3,7 +3,7 @@ import { UserService } from '../../services/user.service';
 import { routes } from '../../app.routes';
 import { Router } from '@angular/router';
 import { User } from '../../models/user';
-import { ViewUserDetailsComponent } from "../view-details/view-user-details/view-user-details.component";
+import { ViewUserDetailsComponent } from "../view-user-details/view-user-details.component";
 import Notiflix from 'notiflix';
 @Component({
   selector: 'app-user-list',

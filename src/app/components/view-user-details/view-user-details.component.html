@@ -1,0 +1,56 @@
+<ng-template #userModal let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title">
+      <i class="bi bi-person-circle me-2"></i>{{ user?.name }}
+    </h4>
+    <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss()"></button>
+  </div>
+  <div class="modal-body">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <div class="card custom-card">
+            <div class="card-header bg-primary text-white">
+              <i class="bi bi-info-circle me-2"></i>
+              <strong>Basic Info</strong>
+            </div>
+            <div class="card-body">
+              <div class="mb-3 info-item">
+                <strong><i class="bi bi-hash me-2"></i>ID:</strong>
+                <span class="ms-2">{{ user?.id }}</span>
+              </div>
+              <div class="mb-3 info-item">
+                <strong><i class="bi bi-person me-2"></i>Name:</strong>
+                <span class="ms-2">{{ user?.name }}</span>
+              </div>
+              <div class="mb-3 info-item">
+                <strong><i class="bi bi-translate me-2"></i>Language:</strong>
+                <span class="ms-2">{{ user?.language }}</span>
+              </div>
+              <div class="mb-3 info-item">
+                <strong><i class="bi bi-tag me-2"></i>Version:</strong>
+                <span class="ms-2">{{ user?.version }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6 mb-3">
+          <div class="card custom-card h-100">
+            <div class="card-header bg-primary text-white">
+              <i class="bi bi-file-text me-2"></i>
+              <strong>Bio</strong>
+            </div>
+            <div class="card-body">
+              <p class="bio-content">{{ user?.bio }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-primary" (click)="modal.close()">
+      <i class="bi bi-check-circle me-2"></i>Close
+    </button>
+  </div>
+</ng-template>
